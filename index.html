@@ -1,15 +1,15 @@
 
 <!-- 
  Name: Cinque Preston
- File: homework1.html
+ File: homework3.html
  Date Created: 2026-02-15
- Date Updated: 2026-03-24
- Purpose: Style sheet for MIS 3371 HW1
+ Date Updated: 2026-04-08
+ Purpose: Medical registration form with on-the-fly validation
 -->
 <html>
     <head>
         <meta charset="utf-8">
-        <title>Homework 1</title>
+        <title>Homework 3</title>
         <link rel="stylesheet" href="homework1.css">
         <link rel="stylesheet" href="homework2.css">
     </head>
@@ -52,9 +52,9 @@
                    name="firstname" 
                    required 
                    oninput="this.setCustomValidity('')" 
+                   onblur="checkfirstname()"
                    title="Enter your first name. Letters, apostrophes, and dashes only. 1-30 characters required."
                    placeholder="Jane (required)">
-
         </span>
         <span style="display:inline-block; text-align:left;">
             <label for="middleinit">MI</label><br>
@@ -62,7 +62,8 @@
                    size="1" 
                    maxlength="1" 
                    id="middleinit" 
-                   name="middleinit" 
+                   name="middleinit"
+                   onblur="checkmiddle()"
                    title="Enter your middle initial. One letter only, no numbers or symbols. Optional."
                    placeholder="Q">
         </span>
@@ -75,12 +76,13 @@
                    name="lastname" 
                    required 
                    oninvalid="this.setCustomValidity('Last Name is Required')" 
-                   oninput="this.setCustomValidity('')" 
+                   oninput="this.setCustomValidity('')"
+                   onblur="checklastname()"
                    title="Enter your last name. Letters, apostrophes, dashes, and numbers 2-5 only. 1-30 characters required."
                    placeholder="Public (required)">
         </span>
-        <span id="name_message" style="color:red;"></span>
-        <span id="lastname_message" style="color:red;"></span>
+        <span id="name_message" style="display:block; color:red;"></span>
+        <span id="lastname_message" style="display:block; color:red;"></span>
     </td>
     </tr>
     <tr class="form">
@@ -94,9 +96,10 @@
                    required
                    oninvalid="this.setCustomValidity('Date of Birth is Required')"
                    oninput="this.setCustomValidity('')"
+                   onblur="checkDOB()"
                    title="Enter your date of birth. Cannot be in the future or more than 120 years ago. Required.">
         </span>
-        <span id="dob_message" style="color:red;"></span>
+        <span id="dob_message" style="display:block; color:red;"></span>
         <span id="dob_date"></span>
         <span style="display:inline-block; text-align:left;">
             <label for="SSN">SSN</label><br>
@@ -107,11 +110,12 @@
                    name="SocialSecurity" 
                    required
                    oninvalid="this.setCustomValidity('Social Security # is Required')"
-                   oninput="this.setCustomValidity('')"
-                   title="Enter your Social Security Number. Required."
+                   oninput="formatSSN()"
+                   onblur="checkSSN()"
+                   title="Enter your 9-digit Social Security Number. Auto-formats as 000-00-0000. Required."
                    placeholder="SSN (required)">
         </span>
-        <span id="ssn_text" style="color:red;"></span>
+        <span id="ssn_text" style="display:block; color:red;"></span>
     </td>
     </tr>
     <tr class="form">
@@ -128,11 +132,11 @@
                    required
                    oninvalid="this.setCustomValidity('At least 1 address line Required')"
                    oninput="this.setCustomValidity('')"
+                   onblur="checkaddr1()"
                    title="Enter your street address. 2-30 characters required."
                    placeholder="5555 Super St (required)">
         </span>
-        <span id="addr1_text" style="color:red;"></span>
-
+        <span id="addr1_text" style="display:block; color:red;"></span>
         <span style="display:inline-block; text-align:left;">
             <label for="addr2">Address Line 2</label><br>
             <input type="text" 
@@ -140,10 +144,11 @@
                    maxlength="30" 
                    id="addr2" 
                    name="addr2"
+                   onblur="checkaddr2()"
                    title="Enter your apartment number or additional address info. 2-30 characters if entered. Optional."
                    placeholder="Apt #, other (optional)">
         </span>
-        <span id="addr2_text" style="color:red;"></span>
+        <span id="addr2_text" style="display:block; color:red;"></span>
     </td>
     </tr>
     <tr class="form">
@@ -159,12 +164,14 @@
                    required
                    oninvalid="this.setCustomValidity('You forgot City')"
                    oninput="this.setCustomValidity('')"
+                   onblur="checkcity()"
                    title="Enter your city. 2-30 characters required."
                    placeholder="Anytown (required)">
         </span>
         <span style="display:inline-block; text-align:left;">
             <label for="state">State</label><br>
-            <select id="state" name="state" required>
+            <select id="state" name="state" required
+                    onblur="checkstate()">
                 <option value=""></option>
                 <option value="AL">Alabama</option>
                 <option value="AK">Alaska</option>
@@ -224,16 +231,19 @@
             <input type="text" 
                    pattern="[0-9]{5}" 
                    size="5" 
-                   maxlength="5" 
+                   maxlength="10" 
                    id="zip" 
                    name="zip" 
                    required
                    oninvalid="this.setCustomValidity('5 Digit Zip/Postal Code required')"
                    oninput="this.setCustomValidity('')"
+                   onblur="checkzip()"
                    title="Enter your 5-digit zip code. Zip+4 format also accepted (00000-0000). Required."
                    placeholder="00000">
         </span>
-        <span id="City_text" style="color:red;"></span><span id="State_text" style="color:red;"></span><span id="zip_text" style="color:red;"></span>
+        <span id="City_text" style="display:block; color:red;"></span>
+        <span id="State_text" style="display:block; color:red;"></span>
+        <span id="zip_text" style="display:block; color:red;"></span>
     </td>
     </tr>
     <tr class="form">
@@ -246,10 +256,11 @@
                    maxlength="13" 
                    id="phone" 
                    name="phone"
+                   onblur="checkphone()"
                    title="Enter your phone number in format 000-000-0000. Optional."
-                   placeholder="(281)415-4322">
+                   placeholder="281-415-4322">
         </span>
-        <span id="phone_text" style="color:red;"></span>
+        <span id="phone_text" style="display:block; color:red;"></span>
     </td>
     </tr>
     <tr class="form">
@@ -261,10 +272,11 @@
                    size="25" 
                    id="email1" 
                    name="email1"
+                   onblur="checkemail()"
                    title="Enter your email address in format name@domain.tld. Optional."
                    placeholder="HaroldM21@cougarnet.uh.edu">
         </span>
-        <span id="Email_Text" style="color:red;"></span>
+        <span id="Email_Text" style="display:block; color:red;"></span>
     </td>
     </tr>
     <tr class="form">
@@ -282,9 +294,10 @@
                    title="Enter a username. 5-30 characters, letters and numbers only, cannot start with a number, no spaces. Required."
                    oninvalid="this.setCustomValidity('Username is Required')"
                    oninput="this.setCustomValidity('')"
+                   onblur="checkuser()"
             >
         </span>
-        <span id="user_text" style="color:red;"></span>
+        <span id="user_text" style="display:block; color:red;"></span>
     </td>
     </tr>
     <tr class="form">
@@ -302,6 +315,7 @@
                    title="Enter a password. 8-30 characters, must include 1 uppercase, 1 lowercase, 1 number, and 1 special character. Cannot contain your name or username."
                    oninvalid="this.setCustomValidity('Password is Required')"
                    oninput="this.setCustomValidity('')"
+                   onblur="passwordentry()"
             >
         </span>
         <span id="pass_text" style="display:block; color:red;"></span>
@@ -323,9 +337,10 @@
                    required
                    title="Re-enter your password to confirm it matches."
                    placeholder="Retype Password"
+                   onblur="checkpassword2()"
             >
         </span>
-        <span id="confirmPass_text" style="color:red;"></span>
+        <span id="confirmPass_text" style="display:block; color:red;"></span>
     </td>
     </tr>
     <tr class="form">
@@ -417,7 +432,7 @@
             <input type="button" id="getdata" value="Review" onclick="getdata1()">
             <input type="button" id="check" value="Check Input" onclick="checkform()">
             <input type="submit" value="Send" id="submit" disabled>
-            <input type="reset" value="Clear">
+            <input type="reset" value="Clear" onclick="document.getElementById('submit').disabled = true;">
             </center>
         </td>
     </tr>
@@ -441,7 +456,7 @@
 <div id="outputformdata"></div>
 
 <!-- Load external JavaScript -->
-<script src="homework2.js"></script>
+<script src="homework3.js"></script>
 <script>
     document.getElementById("today").innerHTML = new Date().toLocaleDateString();
 </script>

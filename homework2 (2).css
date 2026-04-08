@@ -1,0 +1,58 @@
+/* 
+ Name: Cinque Preston
+ File: homework2.css
+ Date Created: 2026-03-24
+ Date Updated: 2026-03-24
+ Purpose: Styles for the review output table
+*/
+#outputformdata {
+    margin-top: 30px;
+}
+table.output {
+    border-collapse: collapse;
+    width: 55%;
+    margin: 30px auto;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+/* Header row */
+table.output th {
+    background-color: rgb(162, 255, 144);
+    color: #000;
+    padding: 10px 16px;
+    text-align: center;
+    font-size: 15px;
+    font-weight: bold;
+    border: 2px solid rgb(100, 200, 80);
+    letter-spacing: 0.4px;
+}
+/* All cells */
+table.output td {
+    border: 1px solid rgb(100, 200, 80);
+    padding: 6px 14px;
+    background-color: #fff;
+}
+/* Field Name column */
+td.fieldname {
+    text-align: right;
+    font-weight: bold;
+    color: #111;
+    width: 28%;
+    white-space: nowrap;
+    background-color: rgb(220, 255, 213);
+}
+/* Type column */
+td.fieldtype {
+    text-align: center;
+    color: #333;
+    width: 18%;
+    white-space: nowrap;
+    background-color: rgb(220, 255, 213);
+}
+/* Value column */
+td.outputdata {
+    text-align: left;
+    width: 54%;
+    background-color: #fff;
+}
