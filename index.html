@@ -123,7 +123,7 @@
                    name="DateOfBirth" 
                    required
                    oninvalid="this.setCustomValidity('Date of Birth is Required')"
-                   oninput="this.setCustomValidity('')"
+                   oninput="this.setCustomValidity(''); checkDOB()"
                    onblur="checkDOB()"
                    title="Enter your date of birth. Cannot be in the future or more than 120 years ago. Required.">
         </span>
