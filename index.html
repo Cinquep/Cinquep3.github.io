@@ -1,15 +1,15 @@
-
-<!-- 
- Name: Cinque Preston
- File: homework3.html
- Date Created: 2026-02-15
- Date Updated: 2026-04-08
- Purpose: Medical registration form with on-the-fly validation
+<!--
+ Program name: index.html
+ Author: Cinque Preston
+ Date created: 2026-02-15
+ Date last edited: 2026-04-20
+ Version: 2.0
+ Description: Preston Medical Center patient registration form (combined).
 -->
 <html>
     <head>
         <meta charset="utf-8">
-        <title>Homework 3</title>
+        <title>Appointment Registration - Preston Medical Center</title>
         <link rel="stylesheet" href="homework1.css">
         <link rel="stylesheet" href="homework2.css">
     </head>
@@ -27,14 +27,42 @@
                             height="200"
                         >
                     </td>
-                    <td valign="middle" align="center" style="font-weight:bold; font-size:39px;">Preston Medical Center</td>
-                    <td valign="bottom" align="right">Today's date: <span id="today"></span></td>
+                    <td class="banner-title" style="width:100%;">Preston Medical Center</td>
+                    <td class="banner-date" style="white-space: nowrap;">Today's date: <span id="today"></span></td>
                 </tr>
             </table>
         </div>
         <hr>
 
-    <div id="body">
+    <div id="main-layout">
+
+      <!-- Left panel -->
+      <div id="left-panel">
+        <div class="info-card">
+          <h3>&#128205; Our Location</h3>
+          <p>Preston Medical Center<br>
+             12153 Great Street<br>
+             Missouri City, TX 77459</p>
+        </div>
+        <div class="info-card">
+          <h3>&#128337; Office Hours</h3>
+          <p>Mon &ndash; Fri: 8am &ndash; 6pm<br>
+             Saturday: 9am &ndash; 2pm<br>
+             Sunday: Closed</p>
+        </div>
+        <div class="info-card">
+          <h3>&#128203; What to Bring</h3>
+          <ul>
+            <li>Photo ID</li>
+            <li>Insurance card</li>
+            <li>List of medications</li>
+            <li>Prior medical records</li>
+            <li>Payment method</li>
+          </ul>
+        </div>
+      </div>
+
+      <div id="body">
     <form name="register" id="register" onreset="removedata1()" action="homework1-submit.html">
     <table class="form">
     <tr class="form">
@@ -100,7 +128,6 @@
                    title="Enter your date of birth. Cannot be in the future or more than 120 years ago. Required.">
         </span>
         <span id="dob_message" style="display:block; color:red;"></span>
-        <span id="dob_date"></span>
         <span style="display:inline-block; text-align:left;">
             <label for="SSN">SSN</label><br>
             <input type="password" 
@@ -125,7 +152,7 @@
             <label for="addr1">Address Line 1</label><br>
             <input type="text" 
                    size="20" 
-                   minlength="4" 
+                   minlength="2" 
                    maxlength="30" 
                    id="addr1" 
                    name="addr1" 
@@ -170,8 +197,7 @@
         </span>
         <span style="display:inline-block; text-align:left;">
             <label for="state">State</label><br>
-            <select id="state" name="state" required
-                    onblur="checkstate()">
+            <select id="state" name="state" required onblur="checkstate()">
                 <option value=""></option>
                 <option value="AL">Alabama</option>
                 <option value="AK">Alaska</option>
@@ -182,6 +208,7 @@
                 <option value="CT">Connecticut</option>
                 <option value="DE">Delaware</option>
                 <option value="DC">District Of Columbia</option>
+                <option value="PR">Puerto Rico</option>
                 <option value="FL">Florida</option>
                 <option value="GA">Georgia</option>
                 <option value="HI">Hawaii</option>
@@ -229,17 +256,16 @@
         <span style="display:inline-block; text-align:left;">
             <label for="zip">Zip</label><br>
             <input type="text" 
-                   pattern="[0-9]{5}" 
-                   size="5" 
+                   size="10" 
                    maxlength="10" 
                    id="zip" 
                    name="zip" 
                    required
-                   oninvalid="this.setCustomValidity('5 Digit Zip/Postal Code required')"
+                   oninvalid="this.setCustomValidity('5-digit ZIP code required (e.g. 77002 or 77002-1234)')"
                    oninput="this.setCustomValidity('')"
                    onblur="checkzip()"
-                   title="Enter your 5-digit zip code. Zip+4 format also accepted (00000-0000). Required."
-                   placeholder="00000">
+                   title="Enter your ZIP code. 5 digits required. ZIP+4 format (00000-0000) also accepted and will be trimmed to 5 digits. Required."
+                   placeholder="00000 or 00000-0000">
         </span>
         <span id="City_text" style="display:block; color:red;"></span>
         <span id="State_text" style="display:block; color:red;"></span>
@@ -286,7 +312,7 @@
             <label for="user">Username</label><br>
             <input type="text" 
                    size="18"
-                   maxlength="20"
+                   maxlength="30"
                    id="user" 
                    name="user"
                    placeholder="Username"
@@ -307,7 +333,7 @@
             <label for="pass">Password</label><br>
             <input type="password" 
                    size="20" 
-                   maxlength="25" 
+                   maxlength="30" 
                    id="pass" 
                    name="Password" 
                    required
@@ -331,7 +357,7 @@
             <label for="confirmPass">Confirm your password</label><br>
             <input type="password" 
                    size="20" 
-                   maxlength="25" 
+                   maxlength="30" 
                    id="confirmPass" 
                    name="confirmPass" 
                    required
@@ -418,11 +444,12 @@
             <input type="range" 
                    id="feeling" 
                    name="feeling"
-                   min="0"
+                   min="1"
                    max="10"
+                   value="5"
                    oninput="document.getElementById('urgencyValue').innerHTML = this.value">
         </span>
-        <span id="urgencyValue" style="margin-left:10px;"></span>
+        <span id="urgencyValue" style="margin-left:10px;">5</span>
     </td>
     </tr>
 
@@ -437,8 +464,31 @@
         </td>
     </tr>
     </table>
-    </form> 
-    </div>
+    </form>
+      </div><!-- end #body -->
+
+      <div id="right-panel">
+        <div class="graphic-panel">
+          <img src="waving.png" alt="Friendly doctor welcoming patients" class="doctor-img">
+          <p class="graphic-title">Preston Medical Center</p>
+          <p class="graphic-sub">Caring for our community<br>since 2004</p>
+        </div>
+        <div class="info-card trust-card">
+          <h3>&#128274; Your Privacy</h3>
+          <p>Your information is encrypted and protected. We never share your data with third parties.</p>
+        </div>
+        <div class="info-card trust-card">
+          <h3>&#9989; Why Register Online?</h3>
+          <ul>
+            <li>Skip the waiting room paperwork</li>
+            <li>Faster check-in on arrival</li>
+            <li>Securely stored records</li>
+            <li>Easy appointment scheduling</li>
+          </ul>
+        </div>
+      </div>
+
+    </div><!-- end #main-layout -->
 
     <div id="footer">
         <hr>
@@ -456,9 +506,22 @@
 <div id="outputformdata"></div>
 
 <!-- Load external JavaScript -->
-<script src="homework3.js"></script>
+<script src="combined.js"></script>
 <script>
-    document.getElementById("today").innerHTML = new Date().toLocaleDateString();
+    (function() {
+        var days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+        var months = ["January","February","March","April","May","June",
+                      "July","August","September","October","November","December"];
+        var d = new Date();
+        var day = days[d.getDay()];
+        var month = months[d.getMonth()];
+        var date = d.getDate();
+        var year = d.getFullYear();
+        var suffix = (date === 1 || date === 21 || date === 31) ? "st"
+                   : (date === 2 || date === 22) ? "nd"
+                   : (date === 3 || date === 23) ? "rd" : "th";
+        document.getElementById("today").innerHTML = day + ", " + month + " " + date + suffix + ", " + year;
+    })();
 </script>
 </body>
 </html>
