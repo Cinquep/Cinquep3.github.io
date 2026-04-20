@@ -37,7 +37,7 @@ var FIELD_LABELS = {
 
 var error_flag = "0";
 
-// ─── REVIEW TABLE ────────────────────────────────────────────────────────────
+// REVIEW TABLE 
 
 function getdata1() {
   var form = document.getElementById("register");
@@ -93,14 +93,14 @@ function removedata1() {
   document.getElementById("submit").disabled = true;
 }
 
-// ─── HELPER ──────────────────────────────────────────────────────────────────
+// HELPER 
 
 function showMsg(id, msg) {
   var el = document.getElementById(id);
   if (el) el.innerHTML = msg;
 }
 
-// ─── SSN AUTO-FORMAT ─────────────────────────────────────────────────────────
+// SSN AUTO-FORMAT 
 
 function formatSSN() {
   var val = document.getElementById("SSN").value.replace(/[^0-9]/g, "");
@@ -122,7 +122,7 @@ function checkSSN() {
   }
 }
 
-// ─── NAME FIELDS ─────────────────────────────────────────────────────────────
+// NAME FIELDS 
 
 function checkfirstname() {
   var val = document.getElementById("firstname").value;
@@ -162,7 +162,7 @@ function checklastname() {
   }
 }
 
-// ─── DATE OF BIRTH ───────────────────────────────────────────────────────────
+// DATE OF BIRTH 
 
 function checkDOB() {
   var val = document.getElementById("DOB").value;
@@ -188,7 +188,7 @@ function checkDOB() {
   }
 }
 
-// ─── CONTACT FIELDS ──────────────────────────────────────────────────────────
+// CONTACT FIELDS
 
 function checkemail() {
   var val = document.getElementById("email1").value;
@@ -214,7 +214,7 @@ function checkphone() {
   }
 }
 
-// ─── ADDRESS FIELDS ──────────────────────────────────────────────────────────
+// ADDRESS FIELDS
 
 function checkaddr1() {
   var val = document.getElementById("addr1").value;
@@ -269,7 +269,7 @@ function checkzip() {
   }
 }
 
-// ─── USERNAME ────────────────────────────────────────────────────────────────
+// USERNAME 
 
 function checkuser() {
   var val = document.getElementById("user").value;
@@ -291,7 +291,7 @@ function checkuser() {
   }
 }
 
-// ─── PASSWORD ────────────────────────────────────────────────────────────────
+// PASSWORD 
 
 function passwordentry() {
   var pass     = document.getElementById("pass").value;
@@ -336,7 +336,7 @@ function checkpassword2() {
   }
 }
 
-// ─── RADIO BUTTONS ───────────────────────────────────────────────────────────
+// RADIO BUTTONs
 
 function checkgender() {
   if (!document.querySelector('input[name="gender"]:checked')) {
@@ -365,7 +365,7 @@ function checkvaccination() {
   }
 }
 
-// ─── CHECK ALL ───────────────────────────────────────────────────────────────
+// CHECK ALL 
 
 function checkform() {
   error_flag = "0";
