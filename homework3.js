@@ -336,6 +336,35 @@ function checkpassword2() {
   }
 }
 
+// ─── RADIO BUTTONS ───────────────────────────────────────────────────────────
+
+function checkgender() {
+  if (!document.querySelector('input[name="gender"]:checked')) {
+    showMsg("gender_text", "Please select a gender.");
+    error_flag = "1";
+  } else {
+    showMsg("gender_text", "");
+  }
+}
+
+function checkmedication() {
+  if (!document.querySelector('input[name="medication"]:checked')) {
+    showMsg("medication_text", "Please indicate if you are on medications.");
+    error_flag = "1";
+  } else {
+    showMsg("medication_text", "");
+  }
+}
+
+function checkvaccination() {
+  if (!document.querySelector('input[name="vaccination"]:checked')) {
+    showMsg("vaccination_text", "Please indicate your COVID vaccination status.");
+    error_flag = "1";
+  } else {
+    showMsg("vaccination_text", "");
+  }
+}
+
 // ─── CHECK ALL ───────────────────────────────────────────────────────────────
 
 function checkform() {
@@ -356,6 +385,9 @@ function checkform() {
   checkuser();
   passwordentry();
   checkpassword2();
+  checkgender();
+  checkmedication();
+  checkvaccination();
 
   if (error_flag === "1") {
     alert("Please fix the indicated errors before submitting.");
