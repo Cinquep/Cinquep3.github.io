@@ -1,51 +1,91 @@
 /* 
  Name: Cinque Preston
- File: homework3.js
+ File: combined.js
  Date Created: 2026-03-15
- Date Updated: 2026-04-08
- Purpose: On-the-fly validation for medical registration form
+ Date Updated: 2026-04-20
+ Purpose: Combined validation + review table for Preston Medical registration form
 */
 
-/*
-   DISPLAY TABLE
-*/
+// Maps each field name to a friendly label for the review table
+var FIELD_LABELS = {
+  firstname:      "First Name",
+  middleinit:     "Middle Initial",
+  lastname:       "Last Name",
+  DateOfBirth:    "Date of Birth",
+  SocialSecurity: "Social Security #",
+  email1:         "Email Address",
+  phone:          "Phone Number",
+  addr1:          "Street Address",
+  addr2:          "Address Line 2",
+  city:           "City",
+  state:          "State",
+  zip:            "ZIP Code",
+  user:           "Username",
+  Password:       "Password",
+  confirmPass:    "Confirm Password",
+  illness1:       "Heart Disease",
+  illness2:       "Diabetes",
+  illness3:       "Hypertension",
+  illness4:       "Cancer",
+  illnessOther:   "Other Condition",
+  description:    "Symptoms / Condition",
+  gender:         "Gender",
+  medication:     "On Medications?",
+  vaccination:    "COVID Vaccinated?",
+  feeling:        "Urgency Level (1-10)"
+};
+
+var error_flag = "0";
+
+// ─── REVIEW TABLE ────────────────────────────────────────────────────────────
+
 function getdata1() {
-  var formcontents = document.getElementById("register");
-  var formoutput = "<table class='output'><tr><th>Field Name</th><th>Type</th><th>Value</th></tr>";
-  var datatype;
-  var i;
+  var form = document.getElementById("register");
+  var rows = "";
+  var seen = {};
 
-  for (i = 0; i < formcontents.elements.length; i++) {
-    datatype = formcontents.elements[i].type;
+  for (var i = 0; i < form.elements.length; i++) {
+    var el = form.elements[i];
+    var type = el.type;
+    var label = FIELD_LABELS[el.name] || FIELD_LABELS[el.id] || el.name;
+    var val = "";
 
-    switch (datatype) {
-      case "checkbox":
-        if (formcontents.elements[i].checked) {
-          formoutput = formoutput + "<tr><td class='fieldname'>" + formcontents.elements[i].name + "</td>";
-          formoutput = formoutput + "<td class='fieldtype'>" + datatype + "</td>";
-          formoutput = formoutput + "<td class='outputdata'>Checked</td></tr>";
-        }
-        break;
-      case "radio":
-        if (formcontents.elements[i].checked) {
-          formoutput = formoutput + "<tr><td class='fieldname'>" + formcontents.elements[i].name + "</td>";
-          formoutput = formoutput + "<td class='fieldtype'>" + datatype + "</td>";
-          formoutput = formoutput + "<td class='outputdata'>" + formcontents.elements[i].value + "</td></tr>";
-        }
-        break;
-      case "button": case "submit": case "reset":
-        break;
-      default:
-        if (formcontents.elements[i].value !== "") {
-          formoutput = formoutput + "<tr><td class='fieldname'>" + formcontents.elements[i].name + "</td>";
-          formoutput = formoutput + "<td class='fieldtype'>" + datatype + "</td>";
-          formoutput = formoutput + "<td class='outputdata'>" + formcontents.elements[i].value + "</td></tr>";
-        }
+    if (type === "button" || type === "submit" || type === "reset") continue;
+
+    if (type === "checkbox") {
+      if (!el.checked) continue;
+      val = "Yes";
+    } else if (type === "radio") {
+      if (seen[el.name]) continue;
+      seen[el.name] = true;
+      var checked = form.querySelector('input[name="' + el.name + '"]:checked');
+      if (!checked) continue;
+      val = checked.value.charAt(0).toUpperCase() + checked.value.slice(1);
+      label = FIELD_LABELS[el.name] || el.name;
+    } else if (type === "password") {
+      if (el.value === "") continue;
+      val = "••••••••";
+    } else if (type === "range") {
+      val = el.value + " / 10";
+    } else {
+      if (el.value === "" || el.value === null) continue;
+      val = el.value;
     }
+
+    rows += "<tr><td class='review-label'>" + label + "</td><td class='review-value'>" + val + "</td></tr>";
   }
 
-  formoutput = formoutput + "</table>";
-  document.getElementById("outputformdata").innerHTML = formoutput;
+  if (rows === "") {
+    document.getElementById("outputformdata").innerHTML = "<p style='text-align:center; color:#555;'>No information entered yet.</p>";
+    return;
+  }
+
+  var table = "<table class='output'>"
+            + "<tr><th>Field</th><th>Your Entry</th></tr>"
+            + rows
+            + "</table>";
+
+  document.getElementById("outputformdata").innerHTML = table;
 }
 
 function removedata1() {
@@ -53,381 +93,251 @@ function removedata1() {
   document.getElementById("submit").disabled = true;
 }
 
-/*
-   SSN AUTO-FORMAT
-   Inserts dashes automatically as user types: 000-00-0000
-*/
+// ─── HELPER ──────────────────────────────────────────────────────────────────
+
+function showMsg(id, msg) {
+  var el = document.getElementById(id);
+  if (el) el.innerHTML = msg;
+}
+
+// ─── SSN AUTO-FORMAT ─────────────────────────────────────────────────────────
+
 function formatSSN() {
-  var val = document.getElementById("SSN").value;
-  val = val.replace(/[^0-9]/g, "");
-  if (val.length > 3 && val.length <= 5) {
+  var val = document.getElementById("SSN").value.replace(/[^0-9]/g, "");
+  if (val.length > 5) {
+    val = val.substring(0, 3) + "-" + val.substring(3, 5) + "-" + val.substring(5, 9);
+  } else if (val.length > 3) {
     val = val.substring(0, 3) + "-" + val.substring(3);
-  } else {
-    if (val.length > 5) {
-      val = val.substring(0, 3) + "-" + val.substring(3, 5) + "-" + val.substring(5, 9);
-    }
   }
   document.getElementById("SSN").value = val;
 }
 
-/*
-   SSN VALIDATION
-   Must be 9 digits (formatted as 000-00-0000)
-*/
 function checkSSN() {
-  x = document.getElementById("SSN").value;
-  if (document.getElementById("SSN").value.match(/^\d{3}-\d{2}-\d{4}$/)) {
-    document.getElementById("ssn_text").innerHTML = "";
+  var val = document.getElementById("SSN").value;
+  if (val.match(/^\d{3}-\d{2}-\d{4}$/)) {
+    showMsg("ssn_text", "");
   } else {
-    document.getElementById("ssn_text").innerHTML = "SSN must be in format 000-00-0000.";
+    showMsg("ssn_text", "SSN must be in format 000-00-0000.");
     error_flag = "1";
   }
 }
 
-/*
-   FIRST NAME
-   1-30 chars, letters/apostrophes/dashes only
-*/
+// ─── NAME FIELDS ─────────────────────────────────────────────────────────────
+
 function checkfirstname() {
-  x = document.getElementById("firstname").value;
-  if (x.length < 1 || x.length > 30) {
-    document.getElementById("name_message").innerHTML = "First name must be 1-30 characters.";
+  var val = document.getElementById("firstname").value;
+  if (val.length < 1 || val.length > 30) {
+    showMsg("name_message", "First name must be 1-30 characters.");
+    error_flag = "1";
+  } else if (!val.match(/^[a-zA-Z'-]+$/)) {
+    showMsg("name_message", "First name: letters, apostrophes, and dashes only.");
     error_flag = "1";
   } else {
-    if (document.getElementById("firstname").value.match(/^[a-zA-Z'-]+$/)) {
-      document.getElementById("name_message").innerHTML = "";
-    } else {
-      document.getElementById("name_message").innerHTML = "First name: letters, apostrophes, and dashes only.";
-      error_flag = "1";
-    }
+    showMsg("name_message", "");
   }
 }
 
-/*
-   MIDDLE INITIAL
-   Optional, 1 letter only
-*/
 function checkmiddle() {
-  x = document.getElementById("middleinit").value;
-  if (x.length === 0) {
-    document.getElementById("name_message").innerHTML = "";
-  } else {
-    if (document.getElementById("middleinit").value.match(/^[a-zA-Z]$/)) {
-      document.getElementById("name_message").innerHTML = "";
-    } else {
-      document.getElementById("name_message").innerHTML = "Middle initial: one letter only, no numbers or symbols.";
-      error_flag = "1";
-    }
-  }
-}
-
-/*
-   LAST NAME
-   1-30 chars, letters/apostrophes/dashes/numbers 2-5
-*/
-function checklastname() {
-  x = document.getElementById("lastname").value;
-  if (x.length < 1 || x.length > 30) {
-    document.getElementById("lastname_message").innerHTML = "Last name must be 1-30 characters.";
+  var val = document.getElementById("middleinit").value;
+  if (val.length === 0) {
+    showMsg("name_message", "");
+  } else if (!val.match(/^[a-zA-Z]$/)) {
+    showMsg("name_message", "Middle initial must be a single letter.");
     error_flag = "1";
   } else {
-    if (document.getElementById("lastname").value.match(/^[a-zA-Z2-5'-]+$/)) {
-      document.getElementById("lastname_message").innerHTML = "";
-    } else {
-      document.getElementById("lastname_message").innerHTML = "Last name: letters, apostrophes, dashes, and numbers 2-5 only.";
-      error_flag = "1";
-    }
+    showMsg("name_message", "");
   }
 }
 
-/*
-   DATE OF BIRTH
-   Must not be in the future, must not be > 120 years ago
-*/
+function checklastname() {
+  var val = document.getElementById("lastname").value;
+  if (val.length < 1 || val.length > 30) {
+    showMsg("lastname_message", "Last name must be 1-30 characters.");
+    error_flag = "1";
+  } else if (!val.match(/^[a-zA-Z2-5'-]+$/)) {
+    showMsg("lastname_message", "Last name: letters, apostrophes, dashes, and numbers 2-5 only.");
+    error_flag = "1";
+  } else {
+    showMsg("lastname_message", "");
+  }
+}
+
+// ─── DATE OF BIRTH ───────────────────────────────────────────────────────────
+
 function checkDOB() {
   var val = document.getElementById("DOB").value;
   if (!val) {
-    document.getElementById("dob_message").innerHTML = "Date of Birth is required.";
+    showMsg("dob_message", "Date of Birth is required.");
+    error_flag = "1";
+    return;
+  }
+  var dob = new Date(val);
+  var today = new Date();
+  today.setHours(0, 0, 0, 0);
+  var oldest = new Date();
+  oldest.setFullYear(oldest.getFullYear() - 120);
+
+  if (dob > today) {
+    showMsg("dob_message", "Date of birth cannot be in the future.");
+    error_flag = "1";
+  } else if (dob < oldest) {
+    showMsg("dob_message", "Date of birth cannot be more than 120 years ago.");
     error_flag = "1";
   } else {
-    var dob = new Date(val);
-    var today = new Date();
-    today.setHours(0, 0, 0, 0);
-    var minDate = new Date();
-    minDate.setFullYear(minDate.getFullYear() - 120);
-
-    if (dob > today) {
-      document.getElementById("dob_message").innerHTML = "Date of Birth cannot be in the future.";
-      error_flag = "1";
-    } else {
-      if (dob < minDate) {
-        document.getElementById("dob_message").innerHTML = "Date of Birth cannot be more than 120 years ago.";
-        error_flag = "1";
-      } else {
-        document.getElementById("dob_message").innerHTML = "";
-      }
-    }
+    showMsg("dob_message", "");
   }
 }
 
-/*
-   EMAIL
-   Must match name@domain.tld format (optional field)
-*/
+// ─── CONTACT FIELDS ──────────────────────────────────────────────────────────
+
 function checkemail() {
-  x = document.getElementById("email1").value;
-  if (x.length === 0) {
-    document.getElementById("Email_Text").innerHTML = "";
+  var val = document.getElementById("email1").value;
+  if (val.length === 0) {
+    showMsg("Email_Text", "");
+  } else if (!val.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+    showMsg("Email_Text", "Please enter a valid email (e.g. name@domain.com).");
+    error_flag = "1";
   } else {
-    if (document.getElementById("email1").value.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
-      document.getElementById("Email_Text").innerHTML = "";
-    } else {
-      document.getElementById("Email_Text").innerHTML = "Enter a valid email: name@domain.tld";
-      error_flag = "1";
-    }
+    showMsg("Email_Text", "");
   }
 }
 
-/*
-   PHONE
-   Optional. Format: 000-000-0000
-*/
 function checkphone() {
-  x = document.getElementById("phone").value;
-  if (x.length === 0) {
-    document.getElementById("phone_text").innerHTML = "";
+  var val = document.getElementById("phone").value;
+  if (val.length === 0) {
+    showMsg("phone_text", "");
+  } else if (!val.match(/^\d{3}-\d{3}-\d{4}$/)) {
+    showMsg("phone_text", "Phone must be in format 000-000-0000.");
+    error_flag = "1";
   } else {
-    if (document.getElementById("phone").value.match(/^\d{3}-\d{3}-\d{4}$/)) {
-      document.getElementById("phone_text").innerHTML = "";
-    } else {
-      document.getElementById("phone_text").innerHTML = "Phone must be in format 000-000-0000.";
-      error_flag = "1";
-    }
+    showMsg("phone_text", "");
   }
 }
 
-/*
-   ADDRESS LINE 1
-   Required, 2-30 characters
-*/
+// ─── ADDRESS FIELDS ──────────────────────────────────────────────────────────
+
 function checkaddr1() {
-  x = document.getElementById("addr1").value;
-  if (x.length < 2 || x.length > 30) {
-    document.getElementById("addr1_text").innerHTML = "Address Line 1 must be 2-30 characters.";
+  var val = document.getElementById("addr1").value;
+  if (val.length < 2 || val.length > 30) {
+    showMsg("addr1_text", "Address Line 1 must be 2-30 characters.");
     error_flag = "1";
   } else {
-    document.getElementById("addr1_text").innerHTML = "";
+    showMsg("addr1_text", "");
   }
 }
 
-/*
-   ADDRESS LINE 2
-   Optional. If entered, same rules as addr1
-*/
 function checkaddr2() {
-  x = document.getElementById("addr2").value;
-  if (x.length === 0) {
-    document.getElementById("addr2_text").innerHTML = "";
+  var val = document.getElementById("addr2").value;
+  if (val.length === 0) {
+    showMsg("addr2_text", "");
+  } else if (val.length < 2 || val.length > 30) {
+    showMsg("addr2_text", "Address Line 2 must be 2-30 characters if entered.");
+    error_flag = "1";
   } else {
-    if (x.length < 2 || x.length > 30) {
-      document.getElementById("addr2_text").innerHTML = "Address Line 2 must be 2-30 characters if entered.";
-      error_flag = "1";
-    } else {
-      document.getElementById("addr2_text").innerHTML = "";
-    }
+    showMsg("addr2_text", "");
   }
 }
 
-/*
-   CITY
-   Required, 2-30 characters
-*/
 function checkcity() {
-  x = document.getElementById("city").value;
-  if (x.length < 2 || x.length > 30) {
-    document.getElementById("City_text").innerHTML = "City must be 2-30 characters.";
+  var val = document.getElementById("city").value;
+  if (val.length < 2 || val.length > 30) {
+    showMsg("City_text", "City must be 2-30 characters.");
     error_flag = "1";
   } else {
-    document.getElementById("City_text").innerHTML = "";
+    showMsg("City_text", "");
   }
 }
 
-/*
-   STATE
-   Must select a value
-*/
 function checkstate() {
-  z = document.getElementById("state").value;
-  if (z === "") {
-    document.getElementById("State_text").innerHTML = "Please choose a state.";
+  var val = document.getElementById("state").value;
+  if (val === "") {
+    showMsg("State_text", "Please select a state.");
     error_flag = "1";
   } else {
-    document.getElementById("State_text").innerHTML = "";
+    showMsg("State_text", "");
   }
 }
 
-/*
-   ZIP CODE
-   Required. 5 digits, or zip+4 (00000-0000).
-   Truncates to 5 digits and redisplays.
-*/
 function checkzip() {
-  x = document.getElementById("zip").value;
-  if (document.getElementById("zip").value.match(/^\d{5}(-\d{4})?$/)) {
-    document.getElementById("zip").value = document.getElementById("zip").value.substring(0, 5);
-    document.getElementById("zip_text").innerHTML = "";
+  var val = document.getElementById("zip").value;
+  if (val.match(/^\d{5}(-\d{4})?$/)) {
+    document.getElementById("zip").value = val.substring(0, 5);
+    showMsg("zip_text", "");
   } else {
-    document.getElementById("zip_text").innerHTML = "Zip must be 5 digits (or zip+4: 00000-0000).";
+    showMsg("zip_text", "ZIP must be 5 digits (or ZIP+4: 00000-0000).");
     error_flag = "1";
   }
 }
 
-/*
-   USERNAME
-   5-30 chars, letters/numbers/underscore/dash,
-   first char must NOT be a number, no spaces,
-   converted to lowercase on submit
-*/
+// ─── USERNAME ────────────────────────────────────────────────────────────────
+
 function checkuser() {
-  x = document.getElementById("user").value;
-  if (x.length < 5 || x.length > 30) {
-    document.getElementById("user_text").innerHTML = "Username must be 5-30 characters.";
+  var val = document.getElementById("user").value;
+  if (val.length < 5 || val.length > 30) {
+    showMsg("user_text", "Username must be 5-30 characters.");
+    error_flag = "1";
+  } else if (/\s/.test(val)) {
+    showMsg("user_text", "Username cannot contain spaces.");
+    error_flag = "1";
+  } else if (/^\d/.test(val)) {
+    showMsg("user_text", "Username cannot begin with a number.");
+    error_flag = "1";
+  } else if (!val.match(/^[a-zA-Z][a-zA-Z0-9_-]*$/)) {
+    showMsg("user_text", "Username: letters, numbers, underscores, and dashes only.");
     error_flag = "1";
   } else {
-    if (document.getElementById("user").value.match(/\s/)) {
-      document.getElementById("user_text").innerHTML = "Username cannot contain spaces.";
-      error_flag = "1";
-    } else {
-      if (document.getElementById("user").value.match(/^\d/)) {
-        document.getElementById("user_text").innerHTML = "Username cannot start with a number.";
-        error_flag = "1";
-      } else {
-        if (document.getElementById("user").value.match(/^[a-zA-Z][a-zA-Z0-9_-]*$/)) {
-          document.getElementById("user").value = document.getElementById("user").value.toLowerCase();
-          document.getElementById("user_text").innerHTML = "";
-        } else {
-          document.getElementById("user_text").innerHTML = "Username: letters, numbers, underscores, and dashes only.";
-          error_flag = "1";
-        }
-      }
-    }
+    document.getElementById("user").value = val.toLowerCase();
+    showMsg("user_text", "");
   }
 }
 
-/*
-   PASSWORD
-   8-30 chars, >=1 upper, >=1 lower, >=1 digit,
-   >=1 special char, no double-quotes,
-   cannot contain username or name parts
-*/
+// ─── PASSWORD ────────────────────────────────────────────────────────────────
+
 function passwordentry() {
-  var passwordoutput;
-  var passwordinput = document.getElementById("pass").value;
+  var pass     = document.getElementById("pass").value;
   var username = document.getElementById("user").value.toLowerCase();
-  var firstname = document.getElementById("firstname").value.toLowerCase();
-  var lastname = document.getElementById("lastname").value.toLowerCase();
-  console.log(passwordinput);
+  var first    = document.getElementById("firstname").value.toLowerCase();
+  var last     = document.getElementById("lastname").value.toLowerCase();
 
-  // Validate lowercase letters
-  if (passwordinput.search(/[a-z]/) < 0) {
-    passwordoutput = "Enter at least 1 lowercase letter.";
+  if (pass.length < 8 || pass.length > 30) {
+    showMsg("pass_text", "Password must be 8-30 characters.");
     error_flag = "1";
   } else {
-    passwordoutput = "Got at least 1 lowercase letter.";
+    showMsg("pass_text", "");
   }
-  document.getElementById("pass_text").innerHTML = passwordoutput;
 
-  // Validate uppercase letters
-  if (passwordinput.search(/[A-Z]/) < 0) {
-    passwordoutput = "Enter at least 1 uppercase letter.";
-    error_flag = "1";
-  } else {
-    passwordoutput = "Got at least 1 uppercase letter.";
-  }
-  document.getElementById("pass_text2").innerHTML = passwordoutput;
+  showMsg("pass_text2", pass.search(/[a-z]/) < 0 ? (error_flag="1", "Must include at least one lowercase letter.") : "");
+  showMsg("pass_text3", pass.search(/[A-Z]/) < 0 ? (error_flag="1", "Must include at least one uppercase letter.") : "");
+  showMsg("pass_text4", pass.search(/[0-9]/) < 0 ? (error_flag="1", "Must include at least one number.") : "");
+  showMsg("pass_text5", pass.search(/[!@#%^&*()\-_+=\\\/><.,`~]/) < 0 ? (error_flag="1", "Must include at least one special character: !@#%^&*()-_+=\\/><.,`~") : "");
+  showMsg("pass_text6", pass.indexOf('"') >= 0 ? (error_flag="1", 'Password cannot contain double-quote (") characters.') : "");
 
-  // Validate numbers
-  if (passwordinput.search(/[0-9]/) < 0) {
-    passwordoutput = "Enter at least 1 number.";
-    error_flag = "1";
-  } else {
-    passwordoutput = "Got at least 1 number.";
-  }
-  document.getElementById("pass_text3").innerHTML = passwordoutput;
+  if (username.length >= 3 && pass.toLowerCase().includes(username)) {
+    showMsg("pass_text7", "Password cannot contain your username."); error_flag = "1";
+  } else { showMsg("pass_text7", ""); }
 
-  // Validate special characters
-  if (passwordinput.search(/[!@#%^&*()\-_+=\\\/><.,`~]/) < 0) {
-    passwordoutput = "Enter at least 1 special character: !@#%^&*()-_+=\\/><.,`~";
-    error_flag = "1";
-  } else {
-    passwordoutput = "Got at least 1 special character.";
-  }
-  document.getElementById("pass_text4").innerHTML = passwordoutput;
+  if (first.length >= 3 && pass.toLowerCase().includes(first)) {
+    showMsg("pass_text8", "Password cannot contain your first name."); error_flag = "1";
+  } else { showMsg("pass_text8", ""); }
 
-  // Validate length
-  if (passwordinput.length < 8 || passwordinput.length > 30) {
-    passwordoutput = "Password must be 8-30 characters.";
-    error_flag = "1";
-  } else {
-    passwordoutput = "Password length is good.";
-  }
-  document.getElementById("pass_text5").innerHTML = passwordoutput;
-
-  // Validate no double-quotes
-  if (passwordinput.indexOf('"') >= 0) {
-    passwordoutput = "Password cannot contain double-quote characters.";
-    error_flag = "1";
-  } else {
-    passwordoutput = "";
-  }
-  document.getElementById("pass_text6").innerHTML = passwordoutput;
-
-  // Validate does not contain username
-  if (username.length >= 3 && passwordinput.toLowerCase().indexOf(username) >= 0) {
-    passwordoutput = "Password cannot contain your username.";
-    error_flag = "1";
-  } else {
-    passwordoutput = "";
-  }
-  document.getElementById("pass_text7").innerHTML = passwordoutput;
-
-  // Validate does not contain first name
-  if (firstname.length >= 3 && passwordinput.toLowerCase().indexOf(firstname) >= 0) {
-    passwordoutput = "Password cannot contain your first name.";
-    error_flag = "1";
-  } else {
-    passwordoutput = "";
-  }
-  document.getElementById("pass_text8").innerHTML = passwordoutput;
-
-  // Validate does not contain last name
-  if (lastname.length >= 3 && passwordinput.toLowerCase().indexOf(lastname) >= 0) {
-    passwordoutput = "Password cannot contain your last name.";
-    error_flag = "1";
-  } else {
-    passwordoutput = "";
-  }
-  document.getElementById("pass_text9").innerHTML = passwordoutput;
+  if (last.length >= 3 && pass.toLowerCase().includes(last)) {
+    showMsg("pass_text9", "Password cannot contain your last name."); error_flag = "1";
+  } else { showMsg("pass_text9", ""); }
 }
 
-/*
-   CONFIRM PASSWORD
-   Must match password field
-*/
 function checkpassword2() {
-  x = document.getElementById("pass").value;
-  y = document.getElementById("confirmPass").value;
-  if (x === y) {
-    document.getElementById("confirmPass_text").innerHTML = "Passwords match!";
+  var p1 = document.getElementById("pass").value;
+  var p2 = document.getElementById("confirmPass").value;
+  if (p1 === p2) {
+    showMsg("confirmPass_text", "<span style='color:green;'>&#10003; Passwords match!</span>");
   } else {
-    document.getElementById("confirmPass_text").innerHTML = "Passwords do not match.";
+    showMsg("confirmPass_text", "Passwords do not match.");
     error_flag = "1";
   }
 }
 
-/*
-   CHECK ALL — called by Check Input button
-*/
+// ─── CHECK ALL ───────────────────────────────────────────────────────────────
+
 function checkform() {
   error_flag = "0";
 
@@ -451,10 +361,6 @@ function checkform() {
     alert("Please fix the indicated errors before submitting.");
   } else {
     document.getElementById("submit").disabled = false;
-    alert("All fields are valid! You may now submit.");
+    alert("All fields are valid! You may now click Send to submit.");
   }
-}
-
-function checkCookie() {
-  // placeholder
 }
